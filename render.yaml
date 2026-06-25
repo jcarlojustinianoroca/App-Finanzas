@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: finance-app
+    runtime: python311
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn finance_app:app --bind 0.0.0.0:8080 --workers 2 --timeout 60
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: FLASK_ENV
+        value: production
+    autoDeploy: true
+    plan: free
