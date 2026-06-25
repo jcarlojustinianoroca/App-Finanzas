@@ -4,8 +4,6 @@ import os
 from datetime import datetime
 import pytz
 import requests
-from apscheduler.schedulers.background import BackgroundScheduler
-import atexit
 
 app = Flask(__name__)
 
@@ -18,13 +16,6 @@ TELEGRAM_CHAT_ID = '1690149604'
 
 # Configuración de la base de datos
 DB_PATH = os.path.join(os.path.dirname(__file__), 'finanzas.db')
-
-# Configurar scheduler para enviar resumen a medianoche
-scheduler = BackgroundScheduler(timezone=ZONA_HORARIA)
-scheduler.start()
-
-# Detener scheduler al cerrar la app
-atexit.register(lambda: scheduler.shutdown())
 
 def conectar_db():
     """Conecta a la base de datos SQLite"""
@@ -232,17 +223,6 @@ def ejecutar_resumen_diario():
 if __name__ == '__main__':
     # Inicializar la base de datos
     inicializar_db()
-    
-    # Programar el envío automático del resumen a las 00:00 (medianoche)
-    scheduler.add_job(
-        func=enviar_resumen_telegram,
-        trigger="cron",
-        hour=0,
-        minute=0,
-        id='resumen_diario_medianoche'
-    )
-    
-    print("✅ Scheduler iniciado - Resumen se enviará a las 00:00 (medianoche) cada día")
-    
+    print("✅ App iniciada - cron-job.org ejecutará el resumen diariamente a las 00:00")
     # El servidor corre en modo debug y se actualiza solo si haces cambios
     app.run(debug=True, port=5000)
