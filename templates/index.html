@@ -452,6 +452,7 @@
                                     <th><i class="fas fa-tag"></i> Categoría</th>
                                     <th><i class="fas fa-note-sticky"></i> Descripción</th>
                                     <th><i class="fas fa-dollar-sign"></i> Monto</th>
+                                    <th><i class="fas fa-calendar-alt"></i> Fecha y Hora</th>
                                     <th style="text-align: center;">Acción</th>
                                 </tr>
                             </thead>
@@ -469,6 +470,11 @@
                                         <span class="amount {{ 'income' if t.tipo == 'ingreso' else 'expense' }}">
                                             {{ '+' if t.tipo == 'ingreso' else '−' }} ${{ "%.2f"|format(t.monto) }}
                                         </span>
+                                    </td>
+                                    <td>
+                                        <small style="color: #64748b;">
+                                            {{ t.fecha_creacion[:10] }} - {{ t.fecha_creacion[11:19] }}
+                                        </small>
                                     </td>
                                     <td style="text-align: center;">
                                         <a href="/eliminar/{{ t.id }}" class="btn btn-delete btn-sm" 
