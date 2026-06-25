@@ -2,8 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
 import os
 from datetime import datetime
+import pytz
 
 app = Flask(__name__)
+
+# Configuración de zona horaria
+ZONA_HORARIA = pytz.timezone('America/La_Paz')
 
 # Configuración de la base de datos
 DB_PATH = os.path.join(os.path.dirname(__file__), 'finanzas.db')
@@ -33,13 +37,16 @@ def inicializar_db():
     # Insertar datos de ejemplo si la tabla está vacía
     cursor.execute('SELECT COUNT(*) as count FROM transacciones')
     if cursor.fetchone()['count'] == 0:
+        # Obtener fecha/hora actual en zona horaria de Bolivia
+        ahora_bolivia = datetime.now(ZONA_HORARIA).strftime('%Y-%m-%d %H:%M:%S')
+        
         datos_iniciales = [
-            ('ingreso', 'Sueldo', 2500.0, 'Pago mensual'),
-            ('gasto', 'Alquiler', 800.0, 'Mes corriente'),
-            ('gasto', 'Comida', 150.0, 'Supermercado')
+            ('ingreso', 'Sueldo', 2500.0, 'Pago mensual', ahora_bolivia),
+            ('gasto', 'Alquiler', 800.0, 'Mes corriente', ahora_bolivia),
+            ('gasto', 'Comida', 150.0, 'Supermercado', ahora_bolivia)
         ]
         cursor.executemany(
-            'INSERT INTO transacciones (tipo, categoria, monto, descripcion) VALUES (?, ?, ?, ?)',
+            'INSERT INTO transacciones (tipo, categoria, monto, descripcion, fecha_creacion) VALUES (?, ?, ?, ?, ?)',
             datos_iniciales
         )
     
@@ -80,11 +87,14 @@ def agregar_transaccion():
     descripcion = request.form.get('descripcion', '')
 
     if monto > 0 and categoria:
+        # Obtener fecha/hora actual en zona horaria de Bolivia
+        ahora_bolivia = datetime.now(ZONA_HORARIA).strftime('%Y-%m-%d %H:%M:%S')
+        
         conn = conectar_db()
         cursor = conn.cursor()
         cursor.execute(
-            'INSERT INTO transacciones (tipo, categoria, monto, descripcion) VALUES (?, ?, ?, ?)',
-            (tipo, categoria, monto, descripcion)
+            'INSERT INTO transacciones (tipo, categoria, monto, descripcion, fecha_creacion) VALUES (?, ?, ?, ?, ?)',
+            (tipo, categoria, monto, descripcion, ahora_bolivia)
         )
         conn.commit()
         conn.close()
